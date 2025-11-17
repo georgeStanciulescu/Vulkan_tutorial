@@ -5,7 +5,13 @@ cmake_minimum_required (VERSION 3.8)
 
 project ("vulkan_guide")
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
+
+set(VULKAN_SDK_PATH "/home/george/vulkan/1.4.328.1/x86_64")
+set(ENV{VULKAN_SDK} "/home/george/vulkan/1.4.328.1/x86_64")
+set(Vulkan_INCLUDE_DIRS "/home/george/vulkan/1.4.328.1/x86_64/include")
+set(Vulkan_LIBRARIES "/home/george/vulkan/1.4.328.1/x86_64/lib")
+
 
 find_package(Vulkan REQUIRED)
 
@@ -16,7 +22,13 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
 add_subdirectory(src)
 
 
-find_program(GLSL_VALIDATOR glslangValidator HINTS /usr/bin /usr/local/bin $ENV{VULKAN_SDK}/Bin/ $ENV{VULKAN_SDK}/Bin32/)
+find_program(GLSL_VALIDATOR glslangValidator
+    HINTS
+        /usr/bin
+        /usr/local/bin
+        $ENV{VULKAN_SDK}/bin
+        /home/george/vulkan/1.4.328.1/x86_64/bin
+)
 
 ## find all the shader files under the shaders folder
 file(GLOB_RECURSE GLSL_SOURCE_FILES

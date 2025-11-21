@@ -49,6 +49,16 @@ struct FrameData {
     VkFence _renderFence;
 
     DeletionQueue _deletionQueue;
+    DescriptorAllocatorGrowable _frameDescriptors;
+};
+
+struct GPUSceneData {
+    glm::mat4 view;
+    glm::mat4 proj;
+    glm::mat4 viewproj;
+    glm::vec4 ambientColor;
+    glm::vec4 sunlightDirection; // w for sun power
+    glm::vec4 sunlightColor;
 };
 
 constexpr unsigned int FRAME_OVERLAP = 2;
@@ -56,7 +66,19 @@ constexpr unsigned int FRAME_OVERLAP = 2;
 class VulkanEngine {
 public:
 
+    AllocatedImage _whiteImage;
+    AllocatedImage _blackImage;
+    AllocatedImage _greyImage;
+    AllocatedImage _errorCheckerboardImage;
+
+    VkSampler _defaultSamplerLinear;
+    VkSampler _defaultSamplerNearest;
+
     std::vector<std::shared_ptr<MeshAsset>> testMeshes;
+
+    GPUSceneData sceneData;
+
+    VkDescriptorSetLayout _gpuSceneDataDescriptorLayout;
 
     VkFence _immFence;
     VkCommandBuffer _immCommandBuffer;
@@ -64,6 +86,8 @@ public:
 
     VkPipeline _gradientPipeline;
     VkPipelineLayout _gradientPipelineLayout;
+
+    VkDescriptorSetLayout _singleImageDescriptorLayout;
 
     // VkPipelineLayout _trianglePipelineLayout;
     // VkPipeline _trianglePipeline;
@@ -80,6 +104,7 @@ public:
 
     AllocatedImage _drawImage;
     VkExtent2D _drawExtent;
+    float renderScale = 1.f;
 
     AllocatedImage _depthImage;
 
@@ -110,6 +135,14 @@ public:
 	bool _isInitialized{ false };
 	int _frameNumber {0};
 	bool stop_rendering{ false };
+    bool resize_requested{false};
+
+    float pov{70.f};
+    float rotation_angle{30.f};
+    float xValue{0.f};
+    float yValue{1.f};
+    float zValue{0.f};
+
 	VkExtent2D _windowExtent{ 1700 , 900 };
 
     std::vector<ComputeEffect> backgroundEffects;
@@ -138,6 +171,10 @@ public:
 
     GPUMeshBuffers uploadMesh(std::span<uint32_t> indices, std::span<Vertex> vertices);
 
+    AllocatedImage create_image(VkExtent3D size, VkFormat format, VkImageUsageFlags usage, bool mipmapped = false);
+    AllocatedImage create_image(void* data, VkExtent3D size, VkFormat format, VkImageUsageFlags usage, bool mipmapped = false);
+    void destroy_image(const AllocatedImage& img);
+
     void init_mesh_pipeline();
 
 private:
@@ -152,6 +189,7 @@ private:
     void init_imgui();
     //void init_triangle_pipeline();
     void init_default_data();
+    void resize_swapchain();
 
     void draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView);
     void draw_background(VkCommandBuffer cmd);

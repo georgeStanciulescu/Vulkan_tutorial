@@ -30,7 +30,10 @@ public:
     void set_depth_format(VkFormat format);
     void disable_depthtest();
     void enable_depthtest(bool depthWriteEnable,VkCompareOp op);
+    void enable_blending_additive();
+    void enable_blending_alphablend();
 };
+
 
 namespace vkutil {
     bool load_shader_module(const char* filePath,
